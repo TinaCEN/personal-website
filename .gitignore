@@ -1,0 +1,29 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# local research dumps
+_refs/
+demo/
+src/
+public/
+首页作品图/
+
+# unused originals
+1：1portrait.png
+26.png
+27.png
+30.png
+8643*.png
+brand*.png
+Background.png
+Background1.png
+微信支付原子ui*.png
+边框.png
+岑斯恬-作品集.pdf
+portrait.jpg
+package.json
+package-lock.json
+tsconfig.json
+vite.config.ts
