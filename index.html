@@ -8,13 +8,139 @@
       name="description"
       content="岑斯恬作品集。UI/UX、品牌视觉与 AI 创意设计。杭州 / 香港。"
     />
-    <link rel="stylesheet" href="/styles.css?v=43" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+      }
+      .loader {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: flex;
+        align-items: center;
+        background: #000;
+        pointer-events: none;
+      }
+      .loader-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-sizing: border-box;
+        height: 22px;
+        min-width: 148px;
+        width: 8%;
+        padding: 0 10px;
+        background: #fff;
+        color: #111;
+        font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+      }
+      .loader-pct {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.04em;
+      }
+      .loader.is-out {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.55s ease, visibility 0.55s ease;
+      }
+    </style>
+    <link rel="stylesheet" href="/styles.css?v=48" />
   </head>
   <body>
-    <div class="loader" aria-hidden="true">
-      <span class="loader-mark">LOADING</span>
+    <div class="loader" id="boot-loader" aria-live="polite">
+      <div class="loader-bar" style="width: 8%">
+        <span>LOADING ...</span>
+        <span class="loader-pct">0%</span>
+      </div>
     </div>
     <div id="root"></div>
-    <script type="module" src="/app.js?v=45"></script>
+    <script type="module" src="/app.js?v=53"></script>
+    <script>
+      (() => {
+        const root = document.getElementById("boot-loader");
+        const bar = root?.querySelector(".loader-bar");
+        const pct = root?.querySelector(".loader-pct");
+        if (!root || !bar || !pct) return;
+
+        const assets = [
+          ...[...document.querySelectorAll("link[rel='stylesheet'], script[src]")].map(
+            (el) => el.href || el.src
+          ),
+          "/portrait-sq.jpg",
+          "/polaroid-frame.png?v=2",
+          "/signature.png",
+          "/nav-blob.gif?v=1",
+          "/covers/taobao-flashbuy.jpg",
+          "/covers/weixin-treat.jpg?v=3",
+          "/covers/weixin-ui-spec.jpg",
+        ];
+
+        let loaded = 0;
+        let aim = 2;
+        let shown = 0;
+        let done = false;
+        const started = performance.now();
+
+        const paint = (value) => {
+          const p = Math.max(0, Math.min(100, Math.round(value)));
+          bar.style.width = `${Math.max(8, p)}%`;
+          pct.textContent = `${p}%`;
+        };
+
+        const finish = () => {
+          if (done) return;
+          done = true;
+          aim = 100;
+        };
+
+        const tick = () => {
+          if (aim < 92) aim = Math.min(92, aim + 0.35);
+          shown += (aim - shown) * (aim >= 100 ? 0.22 : 0.1);
+          if (aim >= 100 && shown > 99.2) shown = 100;
+          paint(shown);
+          if (shown < 100) requestAnimationFrame(tick);
+          else {
+            const wait = Math.max(0, 420 - (performance.now() - started));
+            window.setTimeout(() => {
+              root.classList.add("is-out");
+              window.setTimeout(() => root.remove(), 560);
+            }, wait);
+          }
+        };
+
+        const mark = () => {
+          loaded += 1;
+          aim = Math.max(aim, (loaded / assets.length) * 96);
+          if (loaded >= assets.length) {
+            const rest = Math.max(0, 380 - (performance.now() - started));
+            window.setTimeout(finish, rest);
+          }
+        };
+
+        assets.forEach((url) => {
+          if (/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url)) {
+            const img = new Image();
+            img.onload = img.onerror = mark;
+            img.src = url;
+            return;
+          }
+          fetch(url, { cache: "force-cache" }).then(mark, mark);
+        });
+
+        window.addEventListener("load", () => {
+          aim = Math.max(aim, 94);
+          window.setTimeout(finish, 120);
+        });
+
+        requestAnimationFrame(tick);
+      })();
+    </script>
   </body>
 </html>

@@ -7,7 +7,6 @@ export const profile = {
   email: "mountaincen@qq.com",
   wechat: "cstis666",
   cargo: "cendesign.cargo.site",
-  pdf: "/cen-sitian-portfolio.pdf",
   xhsId: "youshan666",
   xhs: "https://www.xiaohongshu.com/user/profile/5b63e9bff7e8b95dbec5c46d",
   linkedin: "https://www.linkedin.com/in/%E6%96%AF%E6%81%AC-%E5%B2%91-109b65385/",
@@ -151,11 +150,11 @@ export const projects = [
     client: "腾讯",
     category: "product",
     tags: ["社交支付", "UX", "体验设计"],
-    cover: "/covers/weixin-treat.jpg",
+    cover: "/covers/weixin-treat.jpg?v=3",
     excerpt: "一次把「开口尴尬」变成「请客像发邀请」的社交支付全链路探索。",
     description:
       "围绕「如何让用户在社交关系中自然发起请客行为」做体验设计：快捷输入、情绪化卡片包装，以及好友 / 非好友分流。把请求从压力事件改写成一份可以被转发的邀请。",
-    pages: rangeSkip(10, 11, 10),
+    pages: ["/work/11.jpg?v=3"],
   },
   {
     slug: "weixin-ui-spec",

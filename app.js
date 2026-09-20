@@ -1,4 +1,4 @@
-import { about, contents, filters, intro, profile, projects } from "./data.js?v=30";
+import { about, contents, filters, intro, profile, projects } from "./data.js?v=33";
 
 const root = document.getElementById("root");
 const TALK_PHRASES = ["Builder", "Designer", "Creator", "Developer", "Thinking", "Let’s Talk"];
@@ -6,12 +6,17 @@ const TALK_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const TALK_SLOTS = Math.max(...TALK_PHRASES.map((phrase) => phrase.length));
 
 let filter = "all";
+let unlockedSlug = "";
 let talkTimer = 0;
 let phraseTimer = 0;
 let talkRaf = 0;
 let tocRaf = 0;
 let tocFlash = 0;
 let phraseIndex = 0;
+let visionIdle = 0;
+let visionBound = false;
+let visionSettleTimers = [];
+const CV_POOL = "01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#%$<>/\\|[]{}";
 
 function escapeHtml(value) {
   return String(value)
@@ -37,7 +42,6 @@ function navMarkup(solid) {
         </span>
         <span class="nav-wordmark">CEN Sitian</span>
       </a>
-      <a class="nav-deck" href="${profile.pdf}" download>↓ GET PORTFOLIO PDF</a>
       <nav class="nav-links" aria-label="Primary">
         <div>
           <a href="#/work">Work</a>
@@ -69,7 +73,6 @@ function footerMarkup() {
           <a href="https://${profile.cargo}" target="_blank" rel="noreferrer">${profile.cargo}</a>
         </div>
         <div>
-          <a href="${profile.pdf}" download>Download PDF</a>
           <div class="footer-actions">
             <a href="mailto:${profile.email}">Email</a>
             <div class="footer-socials">
@@ -258,7 +261,9 @@ function homeMarkup() {
 
       <section class="about" id="about">
         <div class="about-title">
-          <h2>C<span>o</span>re V<span>i</span>sion</h2>
+          <h2 aria-label="Core Vision">
+            <span class="cv-letter" data-char="C">C</span><span class="cv-loader" aria-hidden="true"><i></i></span><span class="cv-letter" data-char="r">r</span><span class="cv-letter" data-char="e">e</span><span class="cv-gap"></span><span class="cv-letter" data-char="V">V</span><span class="cv-letter is-light" data-char="i">i</span><span class="cv-letter" data-char="s">s</span><span class="cv-letter" data-char="i">i</span><span class="cv-letter" data-char="o">o</span><span class="cv-letter" data-char="n">n</span>
+          </h2>
         </div>
         <p class="about-lead">${about.lead}</p>
         <div class="about-grid">${about.body
@@ -294,11 +299,7 @@ function homeMarkup() {
 }
 
 function isUnlocked(slug) {
-  try {
-    return sessionStorage.getItem(`cen-unlock:${slug}`) === "1";
-  } catch {
-    return false;
-  }
+  return unlockedSlug === slug;
 }
 
 function gateMarkup(project) {
@@ -395,8 +396,9 @@ function projectMarkup(slug) {
 function bindTalk() {
   const slots = [...document.querySelectorAll(".talk-slot")];
   const section = document.querySelector(".talk");
+  const core = document.querySelector(".talk-core");
   const pill = document.querySelector(".talk-start");
-  if (!slots.length || !section || !pill) return;
+  if (!slots.length || !section || !core || !pill) return;
 
   window.clearTimeout(talkTimer);
   window.clearInterval(talkTimer);
@@ -422,19 +424,19 @@ function bindTalk() {
       const target = chars[i];
       const reel = slot.querySelector(".talk-reel");
       if (!reel) return;
+      const unused = !target;
       slot.classList.toggle("is-gap", target === " ");
-      if (!spin) slot.classList.toggle("is-empty", !target);
-      else slot.classList.remove("is-empty");
-      const display = !target || target === " " ? "&nbsp;" : escapeHtml(target);
+      slot.classList.toggle("is-empty", unused);
+      const display = unused || target === " " ? "&nbsp;" : escapeHtml(target);
 
-      if (!spin) {
+      if (!spin || unused) {
         reel.style.transition = "none";
         reel.style.transform = "translateY(0)";
         reel.innerHTML = `<i>${display}</i>`;
         return;
       }
 
-      const steps = target && target !== " " ? 7 + ((Math.random() * 6) | 0) : 3 + ((Math.random() * 3) | 0);
+      const steps = target === " " ? 3 + ((Math.random() * 3) | 0) : 7 + ((Math.random() * 6) | 0);
       const items = [];
       for (let step = 0; step < steps; step += 1) {
         const glyph = randomGlyph();
@@ -449,10 +451,7 @@ function bindTalk() {
       const delay = 30 + i * 28 + Math.random() * 90;
       const duration = 480 + Math.random() * 320;
       reel.style.transition = `transform ${duration}ms cubic-bezier(0.12, 0.72, 0.18, 1) ${delay}ms`;
-      reel.style.transform = `translateY(-${steps}em)`;
-      if (!target) {
-        window.setTimeout(() => slot.classList.add("is-empty"), delay + duration - 40);
-      }
+      reel.style.transform = `translateY(calc(${steps} * -1 * var(--slot-h)))`;
     });
   };
 
@@ -472,21 +471,33 @@ function bindTalk() {
   let my = 0;
   let px = 0;
   let py = 0;
+  let wx = 0;
+  let txWord = 0;
   section.addEventListener("mousemove", (e) => {
     inside = true;
     const box = section.getBoundingClientRect();
+    const x = (e.clientX - box.left) / box.width;
+    const y = (e.clientY - box.top) / box.height;
     mx = e.clientX - (box.left + box.width * 0.62);
     my = e.clientY - (box.top + box.height * 0.58);
+    txWord = (x - 0.5) * 28;
+    const nearCore = x > 0.26 && x < 0.74 && y > 0.22 && y < 0.78;
+    section.classList.toggle("is-arc-left", nearCore || x < 0.3);
+    section.classList.toggle("is-arc-right", nearCore || x > 0.7);
   });
   section.addEventListener("mouseleave", () => {
     inside = false;
+    txWord = 0;
+    section.classList.remove("is-arc-left", "is-arc-right");
   });
   const magnet = () => {
     const tx = inside ? mx : 0;
     const ty = inside ? my : 0;
     px += (tx - px) * 0.14;
     py += (ty - py) * 0.14;
+    wx += (txWord - wx) * 0.08;
     pill.style.transform = `translate(${px}px, ${py}px)`;
+    core.style.transform = `translateX(${wx}px)`;
     talkRaf = requestAnimationFrame(magnet);
   };
   talkRaf = requestAnimationFrame(magnet);
@@ -610,11 +621,7 @@ function bindGate() {
     event.preventDefault();
     const value = String(new FormData(form).get("code") || "").trim();
     if (project && value === String(project.password)) {
-      try {
-        sessionStorage.setItem(`cen-unlock:${project.slug}`, "1");
-      } catch {
-        /* ignore quota / private mode */
-      }
+      unlockedSlug = project.slug;
       render();
       return;
     }
@@ -631,6 +638,74 @@ function bindGate() {
 
 let caseGrowRaf = 0;
 let caseGrowBound = false;
+
+function bindVision() {
+  const title = document.querySelector(".about-title h2");
+  const loader = document.querySelector(".cv-loader");
+  if (!title || !loader) return;
+
+  const letters = () => [...document.querySelectorAll(".cv-letter")];
+  const inView = () => {
+    const box = document.querySelector(".about-title h2");
+    if (!box) return false;
+    const rect = box.getBoundingClientRect();
+    return rect.bottom > 64 && rect.top < window.innerHeight - 48;
+  };
+  const settle = () => {
+    visionSettleTimers.forEach((id) => window.clearTimeout(id));
+    visionSettleTimers = [];
+    letters().forEach((el, i) => {
+      visionSettleTimers.push(
+        window.setTimeout(() => {
+          el.textContent = el.dataset.char || "";
+          el.classList.remove("is-code");
+        }, i * 16)
+      );
+    });
+    document.querySelector(".cv-loader")?.classList.remove("is-spin");
+    document.querySelector(".about-title h2")?.classList.remove("is-loading");
+  };
+  const scramble = () => {
+    const h2 = document.querySelector(".about-title h2");
+    const mark = document.querySelector(".cv-loader");
+    if (!h2 || !mark || !inView()) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    visionSettleTimers.forEach((id) => window.clearTimeout(id));
+    visionSettleTimers = [];
+    h2.classList.add("is-loading");
+    mark.classList.add("is-spin");
+    letters().forEach((el) => {
+      el.classList.add("is-code");
+      el.textContent = CV_POOL[(Math.random() * CV_POOL.length) | 0];
+    });
+    window.clearTimeout(visionIdle);
+    visionIdle = window.setTimeout(settle, 140);
+  };
+
+  if (!visionBound) {
+    visionBound = true;
+    let last = 0;
+    const onScroll = () => {
+      if (!inView()) {
+        if (document.querySelector(".cv-loader.is-spin") || document.querySelector(".cv-letter.is-code")) {
+          settle();
+        }
+        return;
+      }
+      const now = performance.now();
+      if (now - last < 28) {
+        if (inView()) {
+          window.clearTimeout(visionIdle);
+          visionIdle = window.setTimeout(settle, 140);
+        }
+        return;
+      }
+      last = now;
+      scramble();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+}
 
 function bindCaseGrow() {
   const update = () => {
@@ -684,6 +759,7 @@ function bindHome() {
   bindTalk();
   bindToc();
   bindPolaroid();
+  bindVision();
   bindCaseGrow();
 }
 
@@ -775,6 +851,9 @@ function render(options = {}) {
   window.clearInterval(talkTimer);
   window.clearTimeout(phraseTimer);
   window.clearInterval(phraseTimer);
+  window.clearTimeout(visionIdle);
+  visionSettleTimers.forEach((id) => window.clearTimeout(id));
+  visionSettleTimers = [];
   const y = options.keepScroll ? window.scrollY : 0;
   const current = route();
   root.innerHTML =
@@ -788,12 +867,8 @@ function render(options = {}) {
   else window.scrollTo(0, y);
 }
 
-window.addEventListener("hashchange", () => render());
+window.addEventListener("hashchange", () => {
+  unlockedSlug = "";
+  render();
+});
 render();
-
-window.setTimeout(() => {
-  document.querySelector(".loader")?.classList.add("is-out");
-}, 1100);
-window.setTimeout(() => {
-  document.querySelector(".loader")?.remove();
-}, 1700);
