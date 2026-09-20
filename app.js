@@ -1,4 +1,4 @@
-import { about, contents, filters, intro, profile, projects } from "./data.js?v=33";
+import { about, contents, filters, intro, profile, projects } from "./data.js?v=34";
 
 const root = document.getElementById("root");
 const TALK_PHRASES = ["Builder", "Designer", "Creator", "Developer", "Thinking", "Let’s Talk"];
@@ -56,24 +56,29 @@ function navMarkup(solid) {
   `;
 }
 
+function reveal(html, delay, extraClass = "") {
+  return `<span class="footer-line${extraClass ? ` ${extraClass}` : ""}" style="--d:${delay}ms"><span class="footer-line-inner">${html}</span></span>`;
+}
+
 function footerMarkup() {
   return `
     <footer class="footer" id="contact">
-      <p class="footer-kicker">Let’s kick off</p>
-      <a class="footer-mail" href="mailto:${profile.email}">${profile.email}</a>
+      ${reveal("Let’s kick off", 0, "footer-kicker")}
+      <a class="footer-mail" href="mailto:${profile.email}">${reveal(profile.email, 70)}</a>
       <div class="footer-row">
         <div>
-          <p>${profile.nameEn}</p>
-          <p>${profile.role}</p>
-          <p>${profile.location}</p>
+          ${reveal(profile.nameEn, 140)}
+          ${reveal(profile.role, 180)}
+          ${reveal(profile.location, 220)}
         </div>
         <div>
-          <a href="tel:${profile.phone.replaceAll(" ", "")}">${profile.phone}</a>
-          <p>WeChat ${profile.wechat}</p>
-          <a href="https://${profile.cargo}" target="_blank" rel="noreferrer">${profile.cargo}</a>
+          ${reveal(`<a href="tel:${profile.phone.replaceAll(" ", "")}">${profile.phone}</a>`, 180)}
+          ${reveal(`WeChat ${profile.wechat}`, 220)}
+          ${reveal(`<a href="https://${profile.cargo}" target="_blank" rel="noreferrer">${profile.cargo}</a>`, 260)}
         </div>
         <div>
-          <div class="footer-actions">
+          ${reveal(
+            `<div class="footer-actions">
             <a href="mailto:${profile.email}">Email</a>
             <div class="footer-socials">
               <a
@@ -113,10 +118,12 @@ function footerMarkup() {
                 </svg>
               </a>
             </div>
-          </div>
+          </div>`,
+            280
+          )}
         </div>
       </div>
-      <p class="footer-giant">${profile.nameEn}</p>
+      <p class="footer-giant">${reveal(profile.nameEn, 360)}</p>
     </footer>
   `;
 }
@@ -747,6 +754,29 @@ function bindCaseGrow() {
   update();
 }
 
+let footerObserver = null;
+
+function bindFooter() {
+  footerObserver?.disconnect();
+  const footer = document.querySelector(".footer");
+  if (!footer) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    footer.classList.add("is-in");
+    return;
+  }
+  footerObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        footer.classList.add("is-in");
+        footerObserver?.disconnect();
+      });
+    },
+    { threshold: 0.18, rootMargin: "0px 0px -10% 0px" }
+  );
+  footerObserver.observe(footer);
+}
+
 function bindHome() {
   document.querySelectorAll("[data-filter]").forEach((btn) => {
     if (btn.classList.contains("toc-row")) return;
@@ -854,6 +884,7 @@ function render(options = {}) {
   window.clearTimeout(visionIdle);
   visionSettleTimers.forEach((id) => window.clearTimeout(id));
   visionSettleTimers = [];
+  footerObserver?.disconnect();
   const y = options.keepScroll ? window.scrollY : 0;
   const current = route();
   root.innerHTML =
@@ -862,6 +893,7 @@ function render(options = {}) {
   bindCursor();
   bindNav();
   bindGate();
+  bindFooter();
   if (current.name === "home") bindHome();
   if (!options.keepScroll) scrollToHash();
   else window.scrollTo(0, y);
