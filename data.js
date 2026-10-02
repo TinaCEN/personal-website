@@ -40,6 +40,7 @@ export const contents = [
       "/toc/product-08.jpg",
       "/toc/product-09.jpg",
       "/toc/product-10.jpg",
+      "/toc/product-11.jpg",
     ],
     filter: "product",
   },
@@ -205,6 +206,28 @@ export const projects = [
     description:
       "「花园里」服务联华超市场景下的鲜花零售。产品覆盖选花、配送、支付与个性化数字贺卡，让线下花艺和线上社交礼物连在同一条路径里。",
     pages: rangeSkip(27, 37, 27),
+  },
+  {
+    slug: "hibachi-home",
+    title: "洛杉矶HIBACHI餐厅网页设计",
+    titleEn: "Hibachi at Home",
+    year: "2026",
+    client: "HIBACHI at Home",
+    category: "product",
+    tags: ["交互设计", "网页设计", "UIUX设计"],
+    cover: "/covers/hibachi-home.jpg",
+    excerpt: "为洛杉矶上门日式铁板烧服务设计品牌官网，围绕服务理解、菜单选择、报价咨询和预约转化，帮用户快速判断是否适合自己的派对场景。",
+    description:
+      "为洛杉矶上门日式铁板烧服务设计品牌官网，围绕“服务理解—菜单选择—报价咨询—预约转化”的用户路径，重构品牌视觉、信息架构和预订体验，帮助用户快速判断服务是否适合自己的派对场景。",
+    pages: [
+      "/work/hibachi/01.jpg",
+      "/work/hibachi/02.jpg",
+      "/work/hibachi/03.jpg",
+      "/work/hibachi/04.jpg",
+      "/work/hibachi/05.jpg",
+      "/work/hibachi/06.jpg",
+      "/work/hibachi/07.jpg",
+    ],
   },
   {
     slug: "soma-robotics",

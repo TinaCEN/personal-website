@@ -1,4 +1,4 @@
-import { about, contents, filters, intro, profile, projects } from "./data.js?v=34";
+import { about, contents, filters, intro, profile, projects } from "./data.js?v=35";
 
 const root = document.getElementById("root");
 const TALK_PHRASES = ["Builder", "Designer", "Creator", "Developer", "Thinking", "Let’s Talk"];
