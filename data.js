@@ -136,8 +136,6 @@ export const projects = [
     category: "product",
     tags: ["产品设计", "AI 导购", "交互"],
     cover: "/covers/taobao-flashbuy.jpg",
-    locked: true,
-    password: "666",
     excerpt: "把购物入口从「人找商品」改写成「商品找人」——用场景、时间和天气驱动的 AI 导购时刻。",
     description:
       "在淘宝闪购 intern / AI 产品岗位中，围绕即时零售做「闪购时刻」：冷启动文案、场景识别与对话式导购。设计策略层把被动搜索改成主动预测，让 AI 在对的时间把一顿饭、一场局推到用户面前。",
