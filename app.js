@@ -360,6 +360,16 @@ function protoMarkup(project) {
   `;
 }
 
+function pageSrc(n) {
+  return typeof n === "string" ? n : `/work/${String(n).padStart(2, "0")}.jpg`;
+}
+
+function zoomShot(src, alt, extra = "") {
+  return `<button type="button" class="zoom-shot${extra}" data-zoom="${src}" aria-label="放大查看">
+        <img src="${src}" alt="${escapeHtml(alt)}" />
+      </button>`;
+}
+
 function projectMarkup(slug) {
   const index = projects.findIndex((item) => item.slug === slug);
   const project = projects[index];
@@ -370,7 +380,7 @@ function projectMarkup(slug) {
     ${navMarkup(true)}
     <main class="project-page">
       <section class="project-hero">
-        <img src="${project.cover}" alt="" />
+        ${zoomShot(project.cover, project.title, " is-hero")}
         <div class="project-hero-shade"></div>
         <div class="project-hero-copy">
           <p>${project.client} · ${project.year}</p>
@@ -382,13 +392,7 @@ function projectMarkup(slug) {
         <p>${project.description}</p>
       </section>
       <section class="project-pages">
-        ${project.pages
-          .map((n) =>
-            typeof n === "string"
-              ? `<img src="${n}" alt="${escapeHtml(project.title)}" />`
-              : `<img src="/work/${String(n).padStart(2, "0")}.jpg" alt="${escapeHtml(project.title)} ${n}" />`
-          )
-          .join("")}
+        ${project.pages.map((n, i) => zoomShot(pageSrc(n), `${project.title} ${i + 1}`)).join("")}
       </section>
       ${protoMarkup(project)}
       <a class="next-case" href="#/work/${next.slug}">
@@ -838,7 +842,7 @@ function bindCursor() {
   window.addEventListener("mousemove", (e) => {
     x = e.clientX;
     y = e.clientY;
-    hovering = Boolean(e.target?.closest?.("a, button, .case-card, .toc-row, .polaroid"));
+    hovering = Boolean(e.target?.closest?.("a, button, .case-card, .toc-row, .polaroid, .zoom-shot"));
   });
   const loop = () => {
     const dot = document.querySelector(".cursor-dot");
@@ -857,6 +861,92 @@ function bindCursor() {
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
+}
+
+let lightboxBound = false;
+let lightboxShots = [];
+let lightboxIndex = 0;
+
+function lightboxBox() {
+  let box = document.querySelector(".lightbox");
+  if (box) return box;
+  box = document.createElement("div");
+  box.className = "lightbox";
+  box.hidden = true;
+  box.innerHTML = `
+    <button type="button" class="lightbox-close" aria-label="关闭">关闭</button>
+    <button type="button" class="lightbox-prev" aria-label="上一张"></button>
+    <figure class="lightbox-stage">
+      <img alt="" />
+    </figure>
+    <button type="button" class="lightbox-next" aria-label="下一张"></button>
+    <p class="lightbox-count"></p>
+  `;
+  document.body.appendChild(box);
+  return box;
+}
+
+function paintLightbox(index) {
+  if (!lightboxShots.length) return;
+  const box = lightboxBox();
+  lightboxIndex = (index + lightboxShots.length) % lightboxShots.length;
+  const src = lightboxShots[lightboxIndex].dataset.zoom;
+  const img = box.querySelector("img");
+  const count = box.querySelector(".lightbox-count");
+  if (img) {
+    img.src = src;
+    img.alt = lightboxShots[lightboxIndex].querySelector("img")?.alt || "";
+  }
+  if (count) {
+    count.textContent = `${String(lightboxIndex + 1).padStart(2, "0")} / ${String(lightboxShots.length).padStart(2, "0")}`;
+  }
+  box.classList.toggle("is-single", lightboxShots.length < 2);
+}
+
+function openLightbox(index) {
+  const box = lightboxBox();
+  paintLightbox(index);
+  box.hidden = false;
+  document.body.classList.add("is-lightbox");
+  requestAnimationFrame(() => box.classList.add("is-on"));
+}
+
+function closeLightbox() {
+  const box = document.querySelector(".lightbox");
+  if (!box || box.hidden) return;
+  box.classList.remove("is-on");
+  document.body.classList.remove("is-lightbox");
+  window.setTimeout(() => {
+    if (!box.classList.contains("is-on")) box.hidden = true;
+  }, 280);
+}
+
+function bindLightbox() {
+  lightboxShots = [...document.querySelectorAll("[data-zoom]")];
+  lightboxShots.forEach((el, i) => {
+    el.addEventListener("click", () => openLightbox(i));
+  });
+  if (lightboxBound) return;
+  lightboxBound = true;
+  const box = lightboxBox();
+  box.addEventListener("click", (event) => {
+    if (event.target.closest(".lightbox-prev")) {
+      paintLightbox(lightboxIndex - 1);
+      return;
+    }
+    if (event.target.closest(".lightbox-next")) {
+      paintLightbox(lightboxIndex + 1);
+      return;
+    }
+    closeLightbox();
+  });
+  window.addEventListener("keydown", (event) => {
+    const open = document.querySelector(".lightbox:not([hidden])");
+    if (!open) return;
+    if (event.key === "Escape") closeLightbox();
+    if (event.key === "ArrowLeft") paintLightbox(lightboxIndex - 1);
+    if (event.key === "ArrowRight") paintLightbox(lightboxIndex + 1);
+  });
 }
 
 function scrollToHash() {
@@ -885,6 +975,7 @@ function render(options = {}) {
   visionSettleTimers.forEach((id) => window.clearTimeout(id));
   visionSettleTimers = [];
   footerObserver?.disconnect();
+  closeLightbox();
   const y = options.keepScroll ? window.scrollY : 0;
   const current = route();
   root.innerHTML =
@@ -894,6 +985,7 @@ function render(options = {}) {
   bindNav();
   bindGate();
   bindFooter();
+  if (current.name === "project") bindLightbox();
   if (current.name === "home") bindHome();
   if (!options.keepScroll) scrollToHash();
   else window.scrollTo(0, y);

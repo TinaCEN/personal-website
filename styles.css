@@ -39,6 +39,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.is-lightbox {
+  overflow: hidden;
+}
+
+body.is-lightbox .nav {
+  opacity: 0;
+  pointer-events: none;
+}
+
 img {
   max-width: 100%;
   display: block;
@@ -1370,6 +1379,118 @@ ul {
   opacity: 0.88;
 }
 
+.zoom-shot {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #111;
+}
+
+.zoom-shot.is-hero {
+  position: absolute;
+  inset: 0;
+}
+
+.project-pages .zoom-shot:hover img,
+.zoom-shot.is-hero:hover img {
+  filter: brightness(1.04);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+  display: grid;
+  place-items: center;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+.lightbox.is-on {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox-stage {
+  display: grid;
+  place-items: center;
+  width: min(94vw, 1680px);
+  height: 86vh;
+}
+
+.lightbox-stage img {
+  max-width: 100%;
+  max-height: 86vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transform: scale(0.98);
+  transition: transform 0.28s ease;
+}
+
+.lightbox.is-on .lightbox-stage img {
+  transform: scale(1);
+}
+
+.lightbox-close,
+.lightbox-count,
+.lightbox-prev,
+.lightbox-next {
+  position: fixed;
+  z-index: 1;
+  color: #fff;
+}
+
+.lightbox-close {
+  top: 22px;
+  right: 28px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.lightbox-count {
+  left: 28px;
+  bottom: 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+.lightbox-prev,
+.lightbox-next {
+  top: 0;
+  bottom: 0;
+  width: 18vw;
+  max-width: 220px;
+}
+
+.lightbox-prev {
+  left: 0;
+}
+
+.lightbox-next {
+  right: 0;
+}
+
+.lightbox.is-single .lightbox-prev,
+.lightbox.is-single .lightbox-next {
+  display: none;
+}
+
 .project-hero-copy {
   position: absolute;
   left: 4vw;
@@ -1704,6 +1825,29 @@ ul {
 
   .project-intro {
     padding: 32px 20px;
+  }
+
+  .zoom-shot,
+  .lightbox-close,
+  .lightbox-prev,
+  .lightbox-next {
+    cursor: zoom-in;
+  }
+
+  .lightbox-close {
+    cursor: pointer;
+    top: 16px;
+    right: 16px;
+  }
+
+  .lightbox-count {
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .lightbox-prev,
+  .lightbox-next {
+    width: 22vw;
   }
 
   .phone {
