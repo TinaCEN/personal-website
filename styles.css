@@ -373,6 +373,14 @@ ul {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .to-top,
+  .to-top.is-on,
+  .to-top.is-on:hover,
+  .to-top.is-on:focus-visible {
+    transition: none;
+    transform: none;
+  }
+
   .polaroid,
   .polaroid.is-nudge {
     animation: none;
@@ -1491,6 +1499,57 @@ ul {
   display: none;
 }
 
+.to-top {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 60;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28), 0 12px 32px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.28s ease, visibility 0.28s ease, transform 0.28s ease, background 0.28s ease,
+    color 0.28s ease;
+}
+
+.to-top.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+
+.to-top.is-on:hover,
+.to-top.is-on:focus-visible {
+  background: #fff;
+  color: #111;
+  transform: translateY(-2px);
+}
+
+.to-top svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.is-lightbox .to-top {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .project-hero-copy {
   position: absolute;
   left: 4vw;
@@ -1825,6 +1884,14 @@ ul {
 
   .project-intro {
     padding: 32px 20px;
+  }
+
+  .to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
   }
 
   .zoom-shot,

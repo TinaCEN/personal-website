@@ -823,6 +823,44 @@ function bindNav() {
   onScroll();
 }
 
+let toTopBound = false;
+
+function toTopButton() {
+  let btn = document.querySelector(".to-top");
+  if (btn) return btn;
+  btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "to-top";
+  btn.setAttribute("aria-label", "回到顶部");
+  btn.innerHTML = `
+    <svg viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M9 3.6v10.8M4.4 8.2 9 3.6l4.6 4.6" />
+    </svg>
+  `;
+  document.body.appendChild(btn);
+  return btn;
+}
+
+function syncToTop() {
+  const btn = toTopButton();
+  const threshold = Math.min(window.innerHeight * 0.55, 520);
+  btn.classList.toggle("is-on", window.scrollY > threshold);
+}
+
+function bindToTop() {
+  const btn = toTopButton();
+  if (!toTopBound) {
+    toTopBound = true;
+    btn.addEventListener("click", () => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    });
+    window.addEventListener("scroll", syncToTop, { passive: true });
+    window.addEventListener("resize", syncToTop);
+  }
+  syncToTop();
+}
+
 function bindCursor() {
   if (window.matchMedia("(pointer: coarse)").matches) {
     document.querySelectorAll(".cursor").forEach((el) => {
@@ -983,6 +1021,7 @@ function render(options = {}) {
     (current.name === "project" ? projectMarkup(current.slug) : homeMarkup());
   bindCursor();
   bindNav();
+  bindToTop();
   bindGate();
   bindFooter();
   if (current.name === "project") bindLightbox();
