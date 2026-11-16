@@ -1,9 +1,17 @@
-import { about, contents, filters, intro, profile, projects } from "./data.js?v=40";
+import { about, contents, en, filters, intro, profile, projects, ui } from "./data.js?v=41";
 
 const root = document.getElementById("root");
 const TALK_PHRASES = ["Builder", "Designer", "Creator", "Developer", "Thinking", "Let’s Talk"];
 const TALK_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const TALK_SLOTS = Math.max(...TALK_PHRASES.map((phrase) => phrase.length));
+const LANG_KEY = "cen-lang";
+
+let lang = "zh";
+try {
+  lang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "zh";
+} catch {
+  lang = "zh";
+}
 
 let filter = "all";
 let unlockedSlug = "";
@@ -33,7 +41,50 @@ function route() {
   return { name: "home", hash };
 }
 
+function isEn() {
+  return lang === "en";
+}
+
+function t() {
+  return ui[lang] || ui.zh;
+}
+
+function setLang(next) {
+  lang = next === "en" ? "en" : "zh";
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch {
+    /* ignore */
+  }
+  document.documentElement.lang = isEn() ? "en" : "zh-CN";
+}
+
+function localized(item) {
+  const extra = isEn() ? en.projects[item.slug] : null;
+  const heading = extra?.title || (isEn() ? item.titleEn : item.title);
+  const sub = isEn() ? (item.title !== heading ? item.title : item.titleEn) : item.titleEn;
+  const same = heading.trim().toLowerCase() === String(sub || "").trim().toLowerCase();
+  return {
+    ...item,
+    heading,
+    sub: same ? "" : sub,
+    excerpt: extra?.excerpt || item.excerpt,
+    description: extra?.description || item.description,
+    tags: extra?.tags || item.tags,
+    client: extra?.client || item.client,
+  };
+}
+
+function aboutCopy() {
+  return isEn() ? en.about : about;
+}
+
+function introCopy() {
+  return isEn() ? en.intro : intro;
+}
+
 function navMarkup(solid) {
+  const copy = t();
   return `
     <header class="nav ${solid ? "is-solid" : ""}">
       <a href="#/" class="nav-logo" aria-label="CEN Sitian home">
@@ -44,14 +95,19 @@ function navMarkup(solid) {
       </a>
       <nav class="nav-links" aria-label="Primary">
         <div>
-          <a href="#/work">Work</a>
-          <a href="#/services">Contents</a>
+          <a href="#/work">${copy.work}</a>
+          <a href="#/services">${copy.contents}</a>
         </div>
         <div>
-          <a href="#/about">About</a>
-          <a href="#/contact">Contact</a>
+          <a href="#/about">${copy.about}</a>
+          <a href="#/contact">${copy.contact}</a>
         </div>
       </nav>
+      <div class="nav-lang" role="group" aria-label="${copy.lang}">
+        <button type="button" data-lang="zh" class="${isEn() ? "" : "is-on"}" aria-pressed="${isEn() ? "false" : "true"}">中</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" data-lang="en" class="${isEn() ? "is-on" : ""}" aria-pressed="${isEn() ? "true" : "false"}">EN</button>
+      </div>
     </header>
   `;
 }
@@ -73,7 +129,7 @@ function footerMarkup() {
         </div>
         <div>
           ${reveal(`<a href="tel:${profile.phone.replaceAll(" ", "")}">${profile.phone}</a>`, 180)}
-          ${reveal(`WeChat ${profile.wechat}`, 220)}
+          ${reveal(`${t().wechat} ${profile.wechat}`, 220)}
           ${reveal(`<a href="https://${profile.cargo}" target="_blank" rel="noreferrer">${profile.cargo}</a>`, 260)}
         </div>
         <div>
@@ -86,8 +142,8 @@ function footerMarkup() {
                 href="${profile.xhs}"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="小红书 ${profile.xhsId}"
-                title="小红书 ${profile.xhsId}"
+                aria-label="${t().xhs} ${profile.xhsId}"
+                title="${t().xhs} ${profile.xhsId}"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M7.15 3h9.7A4.15 4.15 0 0 1 21 7.15v9.7A4.15 4.15 0 0 1 16.85 21h-9.7A4.15 4.15 0 0 1 3 16.85v-9.7A4.15 4.15 0 0 1 7.15 3Zm4.85 4.35c-2.9 1.28-4.85 3.72-4.85 6.4a4.85 4.85 0 1 0 9.7 0c0-2.68-1.95-5.12-4.85-6.4Zm0 4.05a2.35 2.35 0 1 1 0 4.7 2.35 2.35 0 0 1 0-4.7Z" />
@@ -141,11 +197,17 @@ function arcsMarkup(side) {
 
 function markNames(text, names) {
   let html = escapeHtml(text);
-  const marks = {
-    淘宝闪购: { className: "is-flashbuy", href: "#/work/taobao-flashbuy" },
-    微信支付: { className: "is-weixin", href: "#/work/weixin-treat" },
-    欧诗漫: { className: "is-osmu" },
-  };
+  const marks = isEn()
+    ? {
+        "Taobao Flash Buy": { className: "is-flashbuy", href: "#/work/taobao-flashbuy" },
+        "Weixin Pay": { className: "is-weixin", href: "#/work/weixin-treat" },
+        OSM: { className: "is-osmu" },
+      }
+    : {
+        淘宝闪购: { className: "is-flashbuy", href: "#/work/taobao-flashbuy" },
+        微信支付: { className: "is-weixin", href: "#/work/weixin-treat" },
+        欧诗漫: { className: "is-osmu" },
+      };
   names.forEach((name) => {
     const mark = marks[name];
     const label = escapeHtml(name);
@@ -162,6 +224,8 @@ function markNames(text, names) {
 
 function homeMarkup() {
   const list = filter === "all" ? projects : projects.filter((item) => item.category === filter);
+  const hero = introCopy();
+  const story = aboutCopy();
   return `
     ${navMarkup(false)}
     <main>
@@ -175,8 +239,8 @@ function homeMarkup() {
             <img class="polaroid-sign" src="${intro.sign}" alt="${intro.caption}" />
           </figure>
           <div class="hero-copy">
-            <h1>${intro.lead.map((line) => escapeHtml(line)).join("<br>")}</h1>
-            <p>${markNames(intro.experience, intro.marks)}</p>
+            <h1>${hero.lead.map((line) => escapeHtml(line)).join("<br>")}</h1>
+            <p>${markNames(hero.experience, hero.marks)}</p>
           </div>
         </div>
       </section>
@@ -235,6 +299,7 @@ function homeMarkup() {
         <div class="case-grid">
           ${list
             .map((item, i) => {
+              const view = localized(item);
               const feature = i === 0;
               const lock = item.locked
                 ? `<span class="case-lock" aria-hidden="true"><span>🔑</span>Lock</span>`
@@ -242,7 +307,7 @@ function homeMarkup() {
               const media = `
               <div class="case-media">
                 <div class="case-media-grow">
-                  <img src="${item.cover}" alt="${escapeHtml(item.title)}" />
+                  <img src="${item.cover}" alt="${escapeHtml(view.heading)}" />
                   ${lock}
                 </div>
               </div>`;
@@ -251,11 +316,11 @@ function homeMarkup() {
                 ${
                   feature
                     ? ""
-                    : `<div class="case-meta"><span>${item.client}</span><span>${item.year}</span></div>`
+                    : `<div class="case-meta"><span>${view.client}</span><span>${item.year}</span></div>`
                 }
-                <h3>${item.title}<em>${item.titleEn}</em></h3>
-                <p>${item.excerpt}</p>
-                <ul class="tags">${item.tags.map((t) => `<li>${t}</li>`).join("")}</ul>
+                <h3>${view.heading}${view.sub ? `<em>${view.sub}</em>` : ""}</h3>
+                <p>${view.excerpt}</p>
+                <ul class="tags">${view.tags.map((tag) => `<li>${tag}</li>`).join("")}</ul>
               </div>`;
               return `
             <a class="case-card ${feature ? "is-feature" : ""} ${item.locked ? "is-locked" : ""}" href="#/work/${item.slug}">
@@ -272,8 +337,8 @@ function homeMarkup() {
             <span class="cv-letter" data-char="C">C</span><span class="cv-loader" aria-hidden="true"><i></i></span><span class="cv-letter" data-char="r">r</span><span class="cv-letter" data-char="e">e</span><span class="cv-gap"></span><span class="cv-letter" data-char="V">V</span><span class="cv-letter is-light" data-char="i">i</span><span class="cv-letter" data-char="s">s</span><span class="cv-letter" data-char="i">i</span><span class="cv-letter" data-char="o">o</span><span class="cv-letter" data-char="n">n</span>
           </h2>
         </div>
-        <p class="about-lead">${about.lead}</p>
-        <div class="about-grid">${about.body
+        <p class="about-lead">${story.lead}</p>
+        <div class="about-grid">${story.body
           .map(
             (col) =>
               `<div>${col.map((p) => `<p>${p}</p>`).join("")}</div>`
@@ -282,7 +347,7 @@ function homeMarkup() {
         <div class="about-cols">
           <div>
             <h3>Education</h3>
-            ${about.education
+            ${story.education
               .map(
                 (e) =>
                   `<article><strong>${e.school}</strong><span>${e.detail}</span><em>${e.time}</em></article>`
@@ -291,7 +356,7 @@ function homeMarkup() {
           </div>
           <div>
             <h3>Experience</h3>
-            ${about.experience
+            ${story.experience
               .map(
                 (e) =>
                   `<article><strong>${e.company}</strong><span>${e.detail}</span><em>${e.time}</em></article>`
@@ -310,19 +375,21 @@ function isUnlocked(slug) {
 }
 
 function gateMarkup(project) {
+  const view = localized(project);
+  const copy = t();
   return `
     ${navMarkup(true)}
     <main class="project-gate">
       <form class="gate-form" data-slug="${project.slug}">
-        <p class="gate-kicker">${escapeHtml(project.client)} · ${escapeHtml(project.year)}</p>
-        <h1>${escapeHtml(project.title)}<em>${escapeHtml(project.titleEn)}</em></h1>
-        <p class="gate-note">该项目需要密码后查看</p>
+        <p class="gate-kicker">${escapeHtml(view.client)} · ${escapeHtml(project.year)}</p>
+        <h1>${escapeHtml(view.heading)}${view.sub ? `<em>${escapeHtml(view.sub)}</em>` : ""}</h1>
+        <p class="gate-note">${copy.gateNote}</p>
         <label class="gate-field">
-          <span class="sr-only">项目密码</span>
-          <input type="password" name="code" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="输入密码" />
+          <span class="sr-only">${copy.gatePassword}</span>
+          <input type="password" name="code" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="${copy.gatePlaceholder}" />
         </label>
-        <button type="submit">进入项目</button>
-        <p class="gate-error" hidden>密码不正确</p>
+        <button type="submit">${copy.gateEnter}</button>
+        <p class="gate-error" hidden>${copy.gateError}</p>
       </form>
     </main>
   `;
@@ -330,12 +397,14 @@ function gateMarkup(project) {
 
 function protoMarkup(project) {
   if (!project.demo) return "";
+  const copy = t();
+  const view = localized(project);
   return `
-      <section class="proto" aria-label="原型体验">
+      <section class="proto" aria-label="${copy.protoLabel}">
         <div class="proto-head">
-          <p>Interactive prototype</p>
-          <h2>原型体验</h2>
-          <span>可直接在手机里点击、填写、创建宠物</span>
+          <p>${copy.protoKicker}</p>
+          <h2>${copy.protoLabel}</h2>
+          <span>${copy.protoHint}</span>
         </div>
         <div class="phone-stage">
           <div class="phone">
@@ -348,7 +417,7 @@ function protoMarkup(project) {
               <iframe
                 class="phone-screen"
                 src="${escapeHtml(project.demo)}"
-                title="${escapeHtml(project.title)} 可交互原型"
+                title="${escapeHtml(view.heading)} ${copy.protoTitle}"
                 loading="lazy"
                 allow="autoplay; clipboard-write"
               ></iframe>
@@ -365,7 +434,7 @@ function pageSrc(n) {
 }
 
 function zoomShot(src, alt, extra = "") {
-  return `<button type="button" class="zoom-shot${extra}" data-zoom="${src}" aria-label="放大查看">
+  return `<button type="button" class="zoom-shot${extra}" data-zoom="${src}" aria-label="${t().zoom}">
         <img src="${src}" alt="${escapeHtml(alt)}" />
       </button>`;
 }
@@ -375,29 +444,30 @@ function projectMarkup(slug) {
   const project = projects[index];
   if (!project) return homeMarkup();
   if (project.locked && !isUnlocked(project.slug)) return gateMarkup(project);
-  const next = projects[(index + 1) % projects.length];
+  const view = localized(project);
+  const next = localized(projects[(index + 1) % projects.length]);
   return `
     ${navMarkup(true)}
     <main class="project-page">
       <section class="project-hero">
-        ${zoomShot(project.cover, project.title, " is-hero")}
+        ${zoomShot(project.cover, view.heading, " is-hero")}
         <div class="project-hero-shade"></div>
         <div class="project-hero-copy">
-          <p>${project.client} · ${project.year}</p>
-          <h1>${project.title}<em>${project.titleEn}</em></h1>
+          <p>${view.client} · ${project.year}</p>
+          <h1>${view.heading}${view.sub ? `<em>${view.sub}</em>` : ""}</h1>
         </div>
       </section>
       <section class="project-intro">
-        <ul class="tags">${project.tags.map((t) => `<li>${t}</li>`).join("")}</ul>
-        <p>${project.description}</p>
+        <ul class="tags">${view.tags.map((tag) => `<li>${tag}</li>`).join("")}</ul>
+        <p>${view.description}</p>
       </section>
       <section class="project-pages">
-        ${project.pages.map((n, i) => zoomShot(pageSrc(n), `${project.title} ${i + 1}`)).join("")}
+        ${project.pages.map((n, i) => zoomShot(pageSrc(n), `${view.heading} ${i + 1}`)).join("")}
       </section>
       ${protoMarkup(project)}
       <a class="next-case" href="#/work/${next.slug}">
-        <span>Next case</span>
-        <strong>${next.title}<em>${next.titleEn}</em></strong>
+        <span>${t().nextCase}</span>
+        <strong>${next.heading}${next.sub ? `<em>${next.sub}</em>` : ""}</strong>
       </a>
       ${footerMarkup()}
     </main>
@@ -823,6 +893,32 @@ function bindNav() {
   onScroll();
 }
 
+function bindLang() {
+  document.querySelectorAll("[data-lang]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.getAttribute("data-lang");
+      if (!next || next === lang) return;
+      setLang(next);
+      render({ keepScroll: true });
+    });
+  });
+}
+
+function syncChrome() {
+  const copy = t();
+  const top = document.querySelector(".to-top");
+  if (top) top.setAttribute("aria-label", copy.top);
+  const box = document.querySelector(".lightbox");
+  if (!box) return;
+  const close = box.querySelector(".lightbox-close");
+  if (close) {
+    close.setAttribute("aria-label", copy.close);
+    close.textContent = copy.close;
+  }
+  box.querySelector(".lightbox-prev")?.setAttribute("aria-label", copy.prev);
+  box.querySelector(".lightbox-next")?.setAttribute("aria-label", copy.next);
+}
+
 let toTopBound = false;
 
 function toTopButton() {
@@ -831,7 +927,7 @@ function toTopButton() {
   btn = document.createElement("button");
   btn.type = "button";
   btn.className = "to-top";
-  btn.setAttribute("aria-label", "回到顶部");
+  btn.setAttribute("aria-label", t().top);
   btn.innerHTML = `
     <svg viewBox="0 0 18 18" aria-hidden="true">
       <path d="M9 3.6v10.8M4.4 8.2 9 3.6l4.6 4.6" />
@@ -912,12 +1008,12 @@ function lightboxBox() {
   box.className = "lightbox";
   box.hidden = true;
   box.innerHTML = `
-    <button type="button" class="lightbox-close" aria-label="关闭">关闭</button>
-    <button type="button" class="lightbox-prev" aria-label="上一张"></button>
+    <button type="button" class="lightbox-close" aria-label="${t().close}">${t().close}</button>
+    <button type="button" class="lightbox-prev" aria-label="${t().prev}"></button>
     <figure class="lightbox-stage">
       <img alt="" />
     </figure>
-    <button type="button" class="lightbox-next" aria-label="下一张"></button>
+    <button type="button" class="lightbox-next" aria-label="${t().next}"></button>
     <p class="lightbox-count"></p>
   `;
   document.body.appendChild(box);
@@ -1019,11 +1115,14 @@ function render(options = {}) {
   root.innerHTML =
     `<div class="cursor cursor-dot"></div><div class="cursor cursor-ring"></div>` +
     (current.name === "project" ? projectMarkup(current.slug) : homeMarkup());
+  setLang(lang);
   bindCursor();
   bindNav();
+  bindLang();
   bindToTop();
   bindGate();
   bindFooter();
+  syncChrome();
   if (current.name === "project") bindLightbox();
   if (current.name === "home") bindHome();
   if (!options.keepScroll) scrollToHash();

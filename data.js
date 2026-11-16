@@ -356,3 +356,201 @@ export const filters = [
   { id: "branding", label: "Branding" },
   { id: "ai", label: "AI" },
 ];
+
+export const ui = {
+  zh: {
+    work: "Work",
+    contents: "Contents",
+    about: "About",
+    contact: "Contact",
+    zoom: "放大查看",
+    top: "回到顶部",
+    close: "关闭",
+    prev: "上一张",
+    next: "下一张",
+    nextCase: "Next case",
+    gateNote: "该项目需要密码后查看",
+    gatePassword: "项目密码",
+    gatePlaceholder: "输入密码",
+    gateEnter: "进入项目",
+    gateError: "密码不正确",
+    protoLabel: "原型体验",
+    protoKicker: "Interactive prototype",
+    protoHint: "可直接在手机里点击、填写、创建宠物",
+    protoTitle: "可交互原型",
+    xhs: "小红书",
+    wechat: "微信",
+    lang: "语言",
+  },
+  en: {
+    work: "Work",
+    contents: "Contents",
+    about: "About",
+    contact: "Contact",
+    zoom: "View larger",
+    top: "Back to top",
+    close: "Close",
+    prev: "Previous",
+    next: "Next",
+    nextCase: "Next case",
+    gateNote: "This project is password protected",
+    gatePassword: "Project password",
+    gatePlaceholder: "Enter password",
+    gateEnter: "Enter project",
+    gateError: "Incorrect password",
+    protoLabel: "Live prototype",
+    protoKicker: "Interactive prototype",
+    protoHint: "Tap, type, and create pets inside the phone",
+    protoTitle: "interactive prototype",
+    xhs: "Xiaohongshu",
+    wechat: "WeChat",
+    lang: "Language",
+  },
+};
+
+export const en = {
+  intro: {
+    lead: [
+      "Exploring the edge of AIGC and HCI",
+      "Turning business logic and user emotion into design with warmth",
+    ],
+    experience:
+      "Currently at Taobao Flash Buy, previously interned at Weixin Pay and OSM, shipping experience for products at hundred-million scale.",
+    marks: ["Taobao Flash Buy", "Weixin Pay", "OSM"],
+  },
+  about: {
+    lead: "Putting strategy, emotion, and AI on the same workbench — making products people use, and visuals people remember.",
+    body: [
+      [
+        "With a visual-communication background and interaction design practice, I explore the edge of AIGC and HCI, turning business logic and user emotion into design with warmth.",
+        "I interned in visual design at Tencent Weixin Pay and national brand OSM, shipping experience for products at hundred-million scale.",
+        "I now work as an Experience AI Designer at Alibaba Taobao Flash Buy, focused on AI shopping guides and search/recommendation for instant retail.",
+      ],
+      [
+        "BFA in Visual Design at China Academy of Art; currently an MSc in Interaction Design at The Hong Kong Polytechnic University (QS50).",
+        "I prototype with AI-driven workflows; work was shown at the 2026 Apple Education AI exhibition.",
+        "Awards include Alibaba D20 Future Youth Communication, Tencent AIGC MV Gold, KTK Brand Design, and the New Wave Digital Art Design Award.",
+      ],
+    ],
+    education: [
+      { school: "The Hong Kong Polytechnic University", detail: "MSc Innovation in Multimedia Entertainment", time: "2025.09 — 2027.03" },
+      { school: "China Academy of Art", detail: "BFA Visual Communication Design", time: "2021.09 — 2025.06" },
+    ],
+    experience: [
+      { company: "Alibaba · Taobao Flash Buy", detail: "AI Experience Design", time: "2026 — Present" },
+      { company: "Tencent · Weixin Pay", detail: "Visual Design", time: "2025.12 — 2026.05" },
+      { company: "OSM", detail: "Visual Design", time: "2025.06 — 2025.08" },
+    ],
+  },
+  projects: {
+    "taobao-flashbuy": {
+      title: "Taobao Flash Buy · AI Shopping Guide",
+      client: "Alibaba",
+      tags: ["Product Design", "AI Guide", "Interaction"],
+      excerpt:
+        "Rewrite the shopping entry from “people find goods” to “goods find people” — AI shopping moments driven by scene, time, and weather.",
+      description:
+        "During the Taobao Flash Buy intern / AI product role, I worked on “Flash Buy Moments” for instant retail: cold-start copy, scene recognition, and conversational shopping. The strategy flips passive search into active prediction, so AI can put a meal or a gathering in front of the user at the right time.",
+    },
+    "weixin-treat": {
+      title: "Weixin Pay Treat",
+      client: "Tencent",
+      tags: ["Social Pay", "UX", "Experience"],
+      excerpt: "Turning the awkward ask of treating someone into a social-pay flow that feels like sending an invitation.",
+      description:
+        "Experience design around how people naturally start a treat inside a relationship: fast input, emotional card wrapping, and friend / non-friend routing. The request stops being a pressure event and becomes an invitation that can be forwarded.",
+    },
+    "weixin-ui-spec": {
+      title: "Weixin Pay · Atomic UI Spec",
+      client: "Tencent",
+      tags: ["Social Pay", "UI", "Experience"],
+      excerpt: "Atomic UI spec for Weixin Pay’s Worry-Free Membership in the dining industry.",
+      description:
+        "An atomic-layer UI spec for Weixin Pay’s dining-industry Worry-Free Membership. Membership entries, conversion buttons, and component states are broken into reusable atoms on a 390pt board, keeping the Weixin Pay green language consistent.",
+    },
+    "have-you-walked": {
+      title: "Have You Walked",
+      client: "The Hong Kong Polytechnic University",
+      tags: ["Interactive Product", "Gamification", "AI"],
+      excerpt:
+        "An outdoor education product for Hong Kong primary and secondary students: step habits, creature collecting, and a city route written by AI.",
+      description:
+        "Have You Walked turns walking into a game. Students complete school tasks on real streets, collect pixel creatures, and get literary or nature routes from AI based on weather and curriculum. The project was shown at the PolyU design exhibition and received Capstone Funding.",
+    },
+    "gardens-app": {
+      title: "Gardens · Product Experience",
+      client: "Century Lianhua",
+      tags: ["UI/UX", "AR", "Retail"],
+      excerpt: "A flower app mixing AR and AI: buy flowers, send flowers, turn a bouquet into a gift that can be forwarded.",
+      description:
+        "Gardens serves flower retail inside Lianhua supermarkets. The product covers picking, delivery, payment, and personalized digital cards, connecting in-store floristry with an online social gift.",
+    },
+    "hibachi-home": {
+      title: "HIBACHI at Home Website",
+      client: "HIBACHI at Home",
+      tags: ["Interaction", "Web Design", "UI/UX"],
+      excerpt:
+        "A brand site for a Los Angeles hibachi-at-home service, helping guests decide if the party fits through service, menu, quote, and booking.",
+      description:
+        "Brand site for a Los Angeles hibachi-at-home service. Around the path of understanding the service, choosing a menu, requesting a quote, and booking, I rebuilt the visual system, information architecture, and reservation experience so guests can quickly tell whether it fits their party.",
+    },
+    "soma-robotics": {
+      title: "SOMA Embodied Robotics",
+      client: "SOMA",
+      tags: ["Brand Design", "Website Visual", "VI"],
+      excerpt:
+        "SOMA Silver VI for an embodied-intelligence startup: quiet black-white-grey, signal purple, and a website and collateral system ready to ship.",
+      description:
+        "SOMA explores robots that understand, learn, and execute complex tasks in the real world. Around human behavior data, general robot operation, and a simulation evaluation platform, I built SOMA Silver VI: a modular wordmark, super symbol, color and type rules, then applied them to site components, product pages, and collateral — precise, restrained, and future-facing infrastructure for Physical AI.",
+    },
+    "gardens-brand": {
+      title: "Gardens · Brand System",
+      client: "Century Lianhua",
+      tags: ["Brand Design", "Packaging", "Collateral"],
+      excerpt: "A younger, lighter identity for the flower retail brand at Lianhua CITYLIFE Yan’an Road.",
+      description:
+        "Gardens is part of a supermarket brand upgrade, with keywords of freedom, energy, and fashion. From a petal geometry mark and packaging structure to outdoor ads and motion boards, “Garden Gift” becomes a retail language that can sit on shelf and travel.",
+    },
+    "weixin-visual": {
+      title: "Weixin Pay Visual",
+      client: "Tencent",
+      tags: ["Festival Visual", "VI", "Collateral"],
+      excerpt: "Lunar New Year red-packet skins, brand collateral, and payment-code guides — balancing compliance with communication.",
+      description:
+        "Festival skins and New Year visuals for commercial partners, plus Weixin Pay B-end collateral: hangtags, apparel, bank onboarding pages, and payment-code instructions. The green pay language moves from screen onto objects you can hold.",
+    },
+    "little-shasha": {
+      title: "Jinsha Lake Theatre IP",
+      client: "Dafeng Culture",
+      tags: ["IP Design", "3D", "AIGC"],
+      excerpt: "A theatre mascot grown from the building silhouette, appearing in the auditorium, festivals, and themed shows.",
+      description:
+        "Little ShaSha is an independently designed IP for Hangzhou Jinsha Lake Grand Theatre. The form comes from the theatre silhouette and covers welcome, festival, and merch extensions. From three-view drawings to Lunar New Year costumes, the character keeps showing up in the real venue.",
+    },
+    "treat-bangbang": {
+      title: "Treat BangBang",
+      client: "Independent",
+      tags: ["Pet IP", "Packaging", "AIGC"],
+      excerpt: "A treat-gift for pets — dogs, cats, and snacks turned into character packaging that can go on shelf.",
+      description:
+        "Treat BangBang is a pet-food IP: characters, flavor series, hanging packs, and carton extensions. Round 3D characters and hand-drawn stickers turn functional snacks into a gift you can give.",
+    },
+    "aigc-films": {
+      title: "AIGC Short Films",
+      client: "Duiyou / Time Museum",
+      tags: ["AIGC", "Short Film", "Narrative"],
+      excerpt:
+        "An Alipay New Year film, a Journey-to-the-West time narrative, and a China story selected for the Beijing International Film Festival tech program.",
+      description:
+        "Concept, shots, and post with generative tools: a Duiyou × Alipay New Year short won first prize in a campus contest; the Time Museum series tells stories of revolution, myth, and the Silk Road. Work entered an AIGC award exhibition and the Beijing International Film Festival’s film-tech program.",
+    },
+    "apple-creative": {
+      title: "APPLE Creative Design",
+      client: "Apple",
+      tags: ["Creative Coding", "AI", "Apple"],
+      excerpt: "Echo Forest — generative coding art that makes a good idea visible at once.",
+      description:
+        "Creative coding and generative experiments for Apple contexts. Echo Forest puts idea, code, and image on one creation chain, using AI to turn an abstract thought into a visual you can see immediately.",
+    },
+  },
+};

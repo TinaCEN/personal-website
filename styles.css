@@ -145,7 +145,7 @@ ul {
   right: 0;
   z-index: 50;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
   height: 64px;
   padding: 0 28px;
@@ -195,13 +195,40 @@ ul {
 }
 
 .nav-wordmark,
-.nav-links {
+.nav-links,
+.nav-lang {
   mix-blend-mode: difference;
 }
 
 .nav.is-solid .nav-wordmark,
-.nav.is-solid .nav-links {
+.nav.is-solid .nav-links,
+.nav.is-solid .nav-lang {
   mix-blend-mode: normal;
+}
+
+.nav-lang {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 22px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.nav-lang span {
+  opacity: 0.35;
+}
+
+.nav-lang button {
+  opacity: 0.38;
+}
+
+.nav-lang button.is-on,
+.nav-lang button:hover,
+.nav-lang button:focus-visible {
+  opacity: 1;
 }
 
 .nav-links {
@@ -1778,13 +1805,19 @@ body.is-lightbox .to-top {
   }
 
   .nav {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     padding: 14px 16px 0;
   }
 
   .nav-links {
     font-size: 12px;
     gap: 16px;
+  }
+
+  .nav-lang {
+    margin-left: 12px;
+    font-size: 11px;
+    gap: 5px;
   }
 
   .hero {
