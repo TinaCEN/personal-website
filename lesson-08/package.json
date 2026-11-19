@@ -1,0 +1,14 @@
+{
+  "name": "lesson-08",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev --open false --port 3030",
+    "build": "slidev build --out dist --base ./",
+    "preview": "slidev build --out dist --base ./ && slidev --port 3030"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.8.0",
+    "@slidev/theme-default": "^0.25.0"
+  }
+}
